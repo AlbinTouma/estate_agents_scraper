@@ -126,8 +126,6 @@ mypy==1.17.0
 mypy_extensions==1.1.0
 nbformat==5.10.4
 networkx==3.4.2
-# Editable install with no version control (nomenklatura==4.3.2)
--e /home/albin/projects/deepstate/nomenklatura
 normality==3.0.2
 numba==0.62.1
 numpy==2.3.1
