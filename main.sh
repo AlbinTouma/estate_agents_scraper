@@ -1,6 +1,9 @@
 
 PROJECT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-source $PROJECT_DIR/.venv/bin/activate
+
+pip install -r requirements.txt
+
+
 python dublin.py
 
 git add .
