@@ -8,17 +8,25 @@ on:
 jobs:
   update-alerts:
     runs-on: ubuntu-latest
+    
+    # Explicitly grant write access to push changes back to the repo
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
           token: ${{secrets.GITHUB_TOKEN}}
       
-      
       - name: Get Dublin data
         run: bash ./main.sh
       
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+      # Fix: Set identity, stage files, commit, and push natively
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@://github.com"
+          git add .
+          git commit -m "Automated update: Dublin data" || echo "No changes to commit"
+          git push
