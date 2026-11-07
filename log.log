@@ -1,0 +1,2 @@
+2026-11-07 21:09:13,846 ERROR    HTTP Error occured: HTTP Error 403: 
+2026-11-07 21:09:13,849 INFO     {'page': 49, 'total_pages': 55, 'total_listings': 1085, 'collected': 980}

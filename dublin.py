@@ -2,41 +2,72 @@ import json
 from curl_cffi import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import logging
+from dataclasses import dataclass
 
+@dataclass
+class State:
+    page: int
+    totalPages: int
+    totalResults: int
+    displayingTo: int
+
+    def to_dict(self):
+        return {"page": self.page, "total_pages": self.totalPages, "total_listings": self.totalResults, "collected": self.displayingTo}
+
+scraper = State(0,0,0,0)
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='log.log', level=logging.INFO, format='%(asctime)-15s %(levelname)-8s %(message)s')
 DATE = datetime.today().strftime("%d-%m-%Y")
-print(DATE)
+
 
 def get_dublin(page):
+    response = None
     try:
-        response = requests.get("https://www.daft.ie/sharing/dublin", params={"page": page}, impersonate="chrome")
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
-            data = soup.find('script', id='__NEXT_DATA__')
-            return json.loads(data.text), response.status_code
+        response = requests.get("https://www.daft.ie/sharing/dublin", params={"page": page}, impersonate="chrome", timeout=10)
+        response.raise_for_status()
+        return response
+    except requests.exceptions.HTTPError as e:  
+        logging.error(f'HTTP Error occured: {e}')
+        return response
 
-        return None, response.status_code
+def parse_dublin(response):
+    soup = BeautifulSoup(response.text, 'html.parser')
+    data = soup.find('script', id='__NEXT_DATA__')
+    return json.loads(data.text)
 
-    except Exception as e:
-        print(f"Network/Request error on page {page}: {e}")
-        return None, 0
+
+def update_state(data):
+    scraper.page =   data.get('props').get('pageProps').get('paging').get('currentPage')
+    scraper.totalPages = data.get('props').get('pageProps').get('paging').get('totalPages')
+    scraper.totalResults = data.get('props').get('pageProps').get('paging').get('totalResults')
+    scraper.displayingTo = data.get('props').get('pageProps').get('paging').get('displayingTo')
 
 
-page = 1
-while True:
-    print("Page", page)
-    data, status = get_dublin(page)
 
-    if status != 200:
-        print(status)
+
+page = 1    
+while True: 
+    response = get_dublin(page)
+    page += 1
+
+    if response.status_code != 200:
+        print(f"End  page {page} due to {response.status_code}")
         break
 
-    if not data:
+    if not response:
         print("No data found, stopping")
         break
 
+    data = parse_dublin(response)
+    update_state(data)
+    print(scraper.to_dict())
 
-    with open(f"data/daft_{DATE}.json", 'w') as f:
-        json.dump(data, f)
+
+    with open(f"data/daft_{DATE}.jsonl", 'a') as f:
+        f.write(json.dumps(data) + "\n")
         
 
-    page += 1
+
+logging.info(scraper.to_dict())
