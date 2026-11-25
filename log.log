@@ -36,3 +36,5 @@
 2026-11-23 06:59:57,823 INFO     {'page': 49, 'total_pages': 55, 'total_listings': 1090, 'collected': 980}
 2026-11-24 09:26:18,999 ERROR    HTTP Error occured: HTTP Error 403: 
 2026-11-24 09:26:18,999 INFO     {'page': 49, 'total_pages': 55, 'total_listings': 1091, 'collected': 980}
+2026-11-25 07:57:47,097 ERROR    HTTP Error occured: HTTP Error 403: 
+2026-11-25 07:57:47,098 INFO     {'page': 49, 'total_pages': 55, 'total_listings': 1085, 'collected': 980}
